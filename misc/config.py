@@ -10,7 +10,8 @@ __C = edict()
 cfg = __C
 
 # Dataset name: flowers, birds
-__C.DATASET_NAME = 'birds'
+#__C.DATASET_NAME = 'birds'
+__C.DATASET_NAME = '../Category and Attribute Prediction Benchmark/Anno'
 __C.EMBEDDING_TYPE = 'cnn-rnn'
 __C.CONFIG_NAME = ''
 __C.GPU_ID = 0
@@ -53,8 +54,7 @@ __C.TRAIN.FT_LR_RETIO = 0.1
 
 # Modal options
 __C.GAN = edict()
-# __C.GAN.EMBEDDING_DIM = 128
-__C.GAN.EMBEDDING_DIM = 1000
+__C.GAN.EMBEDDING_DIM = 128
 __C.GAN.DF_DIM = 64
 __C.GAN.GF_DIM = 128
 __C.GAN.NETWORK_TYPE = 'default'

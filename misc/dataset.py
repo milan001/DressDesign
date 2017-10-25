@@ -215,7 +215,7 @@ class TextDataset(object):
         self.test = None
         self.workdir = workdir
         if embedding_type == 'cnn-rnn':
-            self.embedding_filename = '/char-CNN-RNN-embeddings.pickle'
+            self.embedding_filename = '/list_attr_img.txt'
         elif embedding_type == 'skip-thought':
             self.embedding_filename = '/skip-thought-embeddings.pickle'
 
@@ -225,8 +225,9 @@ class TextDataset(object):
             images = np.array(images)
             print('images: ', images.shape)
 
-        with open(pickle_path + self.embedding_filename, 'rb') as f:
-            embeddings = pickle.load(f)
+        with pickle_path + self.embedding_filename as f:
+            embeddings=np.loadtxt(f,skiprows=2,usecols=range(1,1001))
+#            embeddings = pickle.load(f)
             embeddings = np.array(embeddings)
             self.embedding_shape = [embeddings.shape[-1]]
             print('embeddings: ', embeddings.shape)
@@ -239,3 +240,14 @@ class TextDataset(object):
         return Dataset(images, self.image_shape[0], embeddings,
                        list_filenames, self.workdir, None,
                        aug_flag, class_id)
+
+
+
+# next(f)
+# next(f)
+# embeddings=[]
+# name=[]
+# for line in f:
+#     temp=line.split();
+#     name.append(temp[0])
+#     embeddings.append([int(x) for x in temp[1:]])
