@@ -225,17 +225,17 @@ class TextDataset(object):
             images = np.array(images)
             print('images: ', images.shape)
 
-        with pickle_path + self.embedding_filename as f:
-            embeddings=np.loadtxt(f,skiprows=2,usecols=range(1,1001))
+        f=pickle_path + self.embedding_filename
+        embeddings=np.loadtxt(f,skiprows=2,usecols=range(1,1001))
 #            embeddings = pickle.load(f)
-            embeddings = np.array(embeddings)
-            self.embedding_shape = [embeddings.shape[-1]]
-            print('embeddings: ', embeddings.shape)
-        with open(pickle_path + '/filenames.pickle', 'rb') as f:
+        embeddings = np.array(embeddings)
+        self.embedding_shape = [embeddings.shape[-1]]
+        print('embeddings: ', embeddings.shape)
+        with open(pickle_path + '/filenames.txt', 'rb') as f:
             list_filenames = pickle.load(f)
             print('list_filenames: ', len(list_filenames), list_filenames[0])
-        with open(pickle_path + '/class_info.pickle', 'rb') as f:
-            class_id = pickle.load(f)
+#        with open(pickle_path + '/class_info.pickle', 'rb') as f:
+#            class_id = pickle.load(f)
 
         return Dataset(images, self.image_shape[0], embeddings,
                        list_filenames, self.workdir, None,

@@ -11,6 +11,7 @@ from misc.utils import get_image
 from misc.config import cfg, cfg_from_file
 import scipy.misc
 import pandas as pd
+from random import shuffle
 
 # from glob import glob
 
@@ -66,7 +67,10 @@ def save_data_list(inpath, outpath, filenames, filename_bbox):
     lr_images = []
     lr_size = int(LOAD_SIZE / LR_HR_RETIO)
     cnt = 0
-    for key in filenames[:1000]:
+    ids=range(len(filenames))
+    shuffle(ids)
+    for id in ids[:1000]:
+        key=filenames[id]
         key=key[:-4]
         bbox = filename_bbox[key]
         f_name = '%s/../%s.jpg' % (inpath, key)
