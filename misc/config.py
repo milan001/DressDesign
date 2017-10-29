@@ -16,6 +16,7 @@ __C.EMBEDDING_TYPE = 'cnn-rnn'
 __C.CONFIG_NAME = ''
 __C.GPU_ID = 0
 __C.Z_DIM = 100
+__C.NUM_BATCH_IN_FILE=50
 
 # Demo/test options
 __C.TEST = edict()

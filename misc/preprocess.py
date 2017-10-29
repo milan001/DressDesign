@@ -63,38 +63,44 @@ def load_bbox(data_dir):
 
 
 def save_data_list(inpath, outpath, filenames, filename_bbox):
-    hr_images = []
-    lr_images = []
     lr_size = int(LOAD_SIZE / LR_HR_RETIO)
     cnt = 0
     ids=range(len(filenames))
     shuffle(ids)
-    for id in ids[:1000]:
-        key=filenames[id]
-        key=key[:-4]
-        bbox = filename_bbox[key]
-        f_name = '%s/../%s.jpg' % (inpath, key)
-        img = get_image(f_name, LOAD_SIZE, is_crop=True, bbox=bbox)
-        img = img.astype('uint8')
-        hr_images.append(img)
-        lr_img = scipy.misc.imresize(img, [lr_size, lr_size], 'bicubic')
-        lr_images.append(lr_img)
-        cnt += 1
-        if cnt % 100 == 0:
-            print('Load %d......' % cnt)
-    #
-    print('images', len(hr_images), hr_images[0].shape, lr_images[0].shape)
-    #
-    outfile = outpath + str(LOAD_SIZE) + 'images.pickle'
-    with open(outfile, 'wb') as f_out:
-        pickle.dump(hr_images, f_out)
-        print('save to: ', outfile)
-    #
-    outfile = outpath + str(lr_size) + 'images.pickle'
-    with open(outfile, 'wb') as f_out:
-        pickle.dump(lr_images, f_out)
-        print('save to: ', outfile)
+    with open(outpath+'File_Ids.pickle','wb') as f:
+        pickle.dump(ids,f)
+    numfiles=len(ids)/cfg.NUM_BATCH_IN_FILE
+    numfiles=int(numfiles)+1
 
+    for file_id in range(numfiles):
+        hr_images = []
+        lr_images = []
+        for i in range(file_id*cfg.NUM_BATCH_IN_FILE*cfg.TRAIN.BATCH_SIZE,min((file_id+1)*cfg.NUM_BATCH_IN_FILE*cfg.TRAIN.BATCH_SIZE,len(ids))):
+            id=ids[i]
+            key=filenames[id]
+            key=key[:-4]
+            bbox = filename_bbox[key]
+            f_name = '%s/../%s.jpg' % (inpath, key)
+            img = get_image(f_name, LOAD_SIZE, is_crop=True, bbox=bbox)
+            img = img.astype('uint8')
+            hr_images.append(img)
+            lr_img = scipy.misc.imresize(img, [lr_size, lr_size], 'bicubic')
+            lr_images.append(lr_img)
+            cnt += 1
+            if cnt % 100 == 0:
+                print('Load %d......' % cnt)
+        #
+        print('images', len(hr_images), hr_images[0].shape, lr_images[0].shape)
+        #
+        outfile = outpath + str(LOAD_SIZE) + 'images' + str(file_id) +'.pickle'
+        with open(outfile, 'wb') as f_out:
+            pickle.dump(np.array(hr_images,dtype='uint8'), f_out)
+            print('save to: ', outfile)
+        #
+        outfile = outpath + str(lr_size) + 'images' + str(file_id) +'.pickle'
+        with open(outfile, 'wb') as f_out:
+            pickle.dump(np.array(lr_images,dtype='uint8'), f_out)
+            print('save to: ', outfile)
 
 def convert_birds_dataset_pickle(inpath):
     # Load dictionary between image filename to its bbox
