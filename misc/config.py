@@ -32,6 +32,7 @@ __C.TEST.CAPTION_PATH = ''
 __C.TRAIN = edict()
 __C.TRAIN.FLAG = True
 __C.TRAIN.BATCH_SIZE = 64
+__C.TRAIN.NUM_BATCH_IN_FILE = 50
 __C.TRAIN.NUM_COPY = 4
 __C.TRAIN.MAX_EPOCH = 600
 __C.TRAIN.SNAPSHOT_INTERVAL = 2000
@@ -57,7 +58,7 @@ __C.GAN = edict()
 __C.GAN.EMBEDDING_DIM = 128
 __C.GAN.DF_DIM = 64
 __C.GAN.GF_DIM = 128
-__C.GAN.NETWORK_TYPE = 'default'
+__C.GAN.NETWORK_TYPE = 'simple'
 
 
 def _merge_a_into_b(a, b):

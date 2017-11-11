@@ -8,11 +8,11 @@ import random
 
 
 class Dataset(object):
-    def __init__(self, images, imsize, embeddings=None,
+    def __init__(self, imageIds, imsize, embeddings=None,
                  filenames=None, workdir=None,
                  labels=None, aug_flag=True,
                  class_id=None, class_range=None):
-        self._images = images
+        self._imageIds = imageIds
         self._embeddings = embeddings
         self._filenames = filenames
         self.workdir = workdir
@@ -203,7 +203,7 @@ class TextDataset(object):
         lr_imsize = 64
         self.hr_lr_ratio = hr_lr_ratio
         if self.hr_lr_ratio == 1:
-            self.image_filename = '/76images.pickle'
+            self.image_filename = '/File_Ids.pickle'
         elif self.hr_lr_ratio == 4:
             self.image_filename = '/304images.pickle'
 
@@ -217,13 +217,11 @@ class TextDataset(object):
         if embedding_type == 'cnn-rnn':
             self.embedding_filename = '/list_attr_img.txt'
         elif embedding_type == 'skip-thought':
-            self.embedding_filename = '/skip-thought-embeddings.pickle'
+            self.embedding_filename = '/list_attr_img.txt'
 
     def get_data(self, pickle_path, aug_flag=True):
         with open(pickle_path + self.image_filename, 'rb') as f:
-            images = pickle.load(f)
-            images = np.array(images)
-            print('images: ', images.shape)
+            imageIds = pickle.load(f)
 
         f=pickle_path + self.embedding_filename
         embeddings=np.loadtxt(f,skiprows=2,usecols=range(1,1001))
@@ -232,14 +230,14 @@ class TextDataset(object):
         self.embedding_shape = [embeddings.shape[-1]]
         print('embeddings: ', embeddings.shape)
         with open(pickle_path + '/filenames.txt', 'rb') as f:
-            list_filenames = pickle.load(f)
+            list_filenames = f.readlines()
             print('list_filenames: ', len(list_filenames), list_filenames[0])
 #        with open(pickle_path + '/class_info.pickle', 'rb') as f:
 #            class_id = pickle.load(f)
 
-        return Dataset(images, self.image_shape[0], embeddings,
+        return Dataset(imageIds, self.image_shape[0], embeddings,
                        list_filenames, self.workdir, None,
-                       aug_flag, class_id)
+                       aug_flag)#, class_id)
 
 
 
