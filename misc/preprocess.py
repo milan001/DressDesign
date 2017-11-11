@@ -73,8 +73,8 @@ def save_data_list(inpath, outpath, filenames, filename_bbox):
     numfiles=int(numfiles)+1
 
     for file_id in range(numfiles):
-        hr_images = []
-        lr_images = []
+        hr_images = [] #np.array([],dtype=np.)
+        lr_images = [] #np.array([],dtype='uint8')
         for i in range(file_id*cfg.NUM_BATCH_IN_FILE*cfg.TRAIN.BATCH_SIZE,min((file_id+1)*cfg.NUM_BATCH_IN_FILE*cfg.TRAIN.BATCH_SIZE,len(ids))):
             id=ids[i]
             key=filenames[id]
@@ -93,13 +93,13 @@ def save_data_list(inpath, outpath, filenames, filename_bbox):
         print('images', len(hr_images), hr_images[0].shape, lr_images[0].shape)
         #
         outfile = outpath + str(LOAD_SIZE) + 'images' + str(file_id) +'.pickle'
-        with open(outfile, 'wb') as f_out:
-            pickle.dump(np.array(hr_images,dtype='uint8'), f_out)
-            print('save to: ', outfile)
+        # with open(outfile, 'wb') as f_out:
+        #     pickle.dump(hr_images, f_out)
+        #     print('save to: ', outfile)
         #
         outfile = outpath + str(lr_size) + 'images' + str(file_id) +'.pickle'
         with open(outfile, 'wb') as f_out:
-            pickle.dump(np.array(lr_images,dtype='uint8'), f_out)
+            pickle.dump(lr_images, f_out)
             print('save to: ', outfile)
 
 def convert_birds_dataset_pickle(inpath):
