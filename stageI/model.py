@@ -112,10 +112,11 @@ class CondGAN(object):
         return output_tensor
 
     def generator_simple(self, z_var):
+        import numpy as np
         output_tensor =\
             (pt.wrap(z_var).
              flatten().
-             custom_fully_connected(self.s16 * self.s16 * self.gf_dim * 8).
+             custom_fully_connected(self.s16 * self.s16 * self.gf_dim * 8 ).
              reshape([-1, self.s16, self.s16, self.gf_dim * 8]).
              conv_batch_norm().
              apply(tf.nn.relu).
@@ -187,7 +188,7 @@ class CondGAN(object):
 
     def d_encode_image_simple(self):
         template = \
-            (pt.template("input")).
+            (pt.template("input").
              custom_conv2d(self.df_dim, k_h=4, k_w=4).
              apply(leaky_rectify, leakiness=0.2).
              custom_conv2d(self.df_dim * 2, k_h=4, k_w=4).
@@ -214,11 +215,12 @@ class CondGAN(object):
         return template
 
     def get_discriminator(self, x_var, c_var):
+        print(x_var)
         x_code = self.d_encode_img_template.construct(input=x_var)
 
         c_code = self.d_context_template.construct(input=c_var)
         c_code = tf.expand_dims(tf.expand_dims(c_code, 1), 1)
         c_code = tf.tile(c_code, [1, self.s16, self.s16, 1])
 
-        x_c_code = tf.concat(3, [x_code, c_code])
+        x_c_code = tf.concat([x_code, c_code], 3)
         return self.discriminator_template.construct(input=x_c_code)

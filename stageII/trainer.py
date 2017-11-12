@@ -114,7 +114,7 @@ class CondGANTrainer(object):
                 z = tf.random_normal([self.batch_size, cfg.Z_DIM])
                 self.log_vars.append(("hist_c", c))
                 self.log_vars.append(("hist_z", z))
-                fake_images = self.model.get_generator(tf.concat(1, [c, z]))
+                fake_images = self.model.get_generator(tf.concat([c, z],1))
 
             # ####get discriminator_loss and generator_loss ###################
             discriminator_loss, generator_loss =\
@@ -158,7 +158,7 @@ class CondGANTrainer(object):
         with tf.variable_scope("g_net", reuse=True):
             c, _ = self.sample_encoded_context(self.embeddings)
             z = tf.random_normal([self.batch_size, cfg.Z_DIM])
-            self.fake_images = self.model.get_generator(tf.concat(1, [c, z]))
+            self.fake_images = self.model.get_generator(tf.concat([c, z], 1))
         with tf.variable_scope("hr_g_net", reuse=True):
             hr_c, _ = self.sample_encoded_context(self.embeddings)
             self.hr_fake_images =\
