@@ -187,7 +187,7 @@ class CondGAN(object):
 
     def d_encode_image_simple(self):
         template = \
-            (pt.template("input").
+            (pt.template("input")).
              custom_conv2d(self.df_dim, k_h=4, k_w=4).
              apply(leaky_rectify, leakiness=0.2).
              custom_conv2d(self.df_dim * 2, k_h=4, k_w=4).

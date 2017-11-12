@@ -39,12 +39,11 @@ if __name__ == "__main__":
 
     now = datetime.datetime.now(dateutil.tz.tzlocal())
     timestamp = now.strftime('%Y_%m_%d_%H_%M_%S')
-
 #    datadir = 'Data/%s' % cfg.DATASET_NAME
     datadir = cfg.DATASET_NAME
     dataset = TextDataset(datadir, cfg.EMBEDDING_TYPE, 1)
     filename_test = datadir
-    dataset.test = dataset.get_data(filename_test)
+#    dataset.test = dataset.get_data(filename_test)
     if cfg.TRAIN.FLAG:
         filename_train = datadir
         dataset.train = dataset.get_data(filename_train)

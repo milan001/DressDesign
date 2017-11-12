@@ -5,6 +5,7 @@ from __future__ import print_function
 import numpy as np
 import pickle
 import random
+from misc.config import cfg
 
 
 class Dataset(object):
@@ -13,16 +14,23 @@ class Dataset(object):
                  labels=None, aug_flag=True,
                  class_id=None, class_range=None):
         self._imageIds = imageIds
+        self._images=[]
         self._embeddings = embeddings
         self._filenames = filenames
         self.workdir = workdir
         self._labels = labels
         self._epochs_completed = -1
-        self._num_examples = len(images)
+        self._num_examples = len(imageIds)
+        self._num_batch_in_file=cfg.NUM_BATCH_IN_FILE
         self._saveIDs = self.saveIDs()
+        self._fake_images = []
+        self._fake_file_id = 0
 
         # shuffle on first run
         self._index_in_epoch = self._num_examples
+        self._File_index = -1
+        self._batch_index_in_file = self._num_batch_in_file
+        self._num_files = 91
         self._aug_flag = aug_flag
         self._class_id = np.array(class_id)
         self._class_range = class_range
@@ -112,53 +120,69 @@ class Dataset(object):
         """Return the next `batch_size` examples from this data set."""
         start = self._index_in_epoch
         self._index_in_epoch += batch_size
+        self._batch_index_in_file += 1
 
         if self._index_in_epoch > self._num_examples:
             # Finished epoch
             self._epochs_completed += 1
+            self._File_index = 0
+            self._batch_index_in_file = self._num_batch_in_file + 1
             # Shuffle the data
-            self._perm = np.arange(self._num_examples)
-            np.random.shuffle(self._perm)
-
-            # Start next epoch
             start = 0
-            self._index_in_epoch = batch_size
+        
+            # Start next epoch
             assert batch_size <= self._num_examples
+            self._index_in_epoch = batch_size
         end = self._index_in_epoch
+        
+        if self._batch_index_in_file > self._num_batch_in_file:
+            self._File_index += 1
+            self._batch_index_in_file = 0
+            with open("76images" + (self._File_index-1) + ".pickle") as f:
+                self._images=pickle.load(f)
+            self._fake_file_id=np.random.randint(self._num_files-1)
+            if self._fake_file_id > self.File_index:
+                self._fake_file_id += 1
+            with open("76images" + _fake_file_id + ".pickle") as f:
+                self._fake_images=pickle.load(f)
+            self._perm = np.arange(self._num_batch_in_file * batch_size)
+            np.random.shuffle(self._perm)
+        
+        start_file = self._batch_index_in_file * batch_size
+        end_file = start_file + batch_size - 1
+        
+        
 
-        current_ids = self._perm[start:end]
-        fake_ids = np.random.randint(self._num_examples, size=batch_size)
-        collision_flag =\
-            (self._class_id[current_ids] == self._class_id[fake_ids])
-        fake_ids[collision_flag] =\
-            (fake_ids[collision_flag] +
-             np.random.randint(100, 200)) % self._num_examples
-
+        current_ids = self._perm[start_file:end_file]
+        fake_ids = np.random.randint(self._num_batch_in_file * batch_size, size=batch_size)
+        
         sampled_images = self._images[current_ids]
-        sampled_wrong_images = self._images[fake_ids, :, :, :]
+        sampled_wrong_images = self._fake_images[fake_ids, :, :, :]
         sampled_images = sampled_images.astype(np.float32)
         sampled_wrong_images = sampled_wrong_images.astype(np.float32)
         sampled_images = sampled_images * (2. / 255) - 1.
         sampled_wrong_images = sampled_wrong_images * (2. / 255) - 1.
 
-        sampled_images = self.transform(sampled_images)
-        sampled_wrong_images = self.transform(sampled_wrong_images)
+        # sampled_images = self.transform(sampled_images)
+        # sampled_wrong_images = self.transform(sampled_wrong_images)
         ret_list = [sampled_images, sampled_wrong_images]
 
         if self._embeddings is not None:
             filenames = [self._filenames[i] for i in current_ids]
             class_id = [self._class_id[i] for i in current_ids]
-            sampled_embeddings, sampled_captions = \
-                self.sample_embeddings(self._embeddings[current_ids],
+            ''' sampled_embeddings, sampled_captions = \
+                self.sample_embeddings(self._embeddings[self._imageIds[(self._File_index-1)*self._num_batch_in_file * batch_size+current_ids[i] for i in range(len(current_ids))]],
                                        filenames, class_id, window)
             ret_list.append(sampled_embeddings)
-            ret_list.append(sampled_captions)
+            ret_list.append(sampled_captions)  '''
+            Id=[((self._File_index-1)*self._num_batch_in_file*batch_size+current_ids[i]) for i in range(len(current_ids))]
+            ret_list.append(self._embeddings[self._imageIds[Id]])
         else:
             ret_list.append(None)
             ret_list.append(None)
 
         if self._labels is not None:
-            ret_list.append(self._labels[current_ids])
+            ret_list.append(self._labels[[current_ids]])
         else:
             ret_list.append(None)
         return ret_list
@@ -200,12 +224,12 @@ class Dataset(object):
 
 class TextDataset(object):
     def __init__(self, workdir, embedding_type, hr_lr_ratio):
-        lr_imsize = 64
+        lr_imsize = 76 # 64
         self.hr_lr_ratio = hr_lr_ratio
         if self.hr_lr_ratio == 1:
             self.image_filename = '/File_Ids.pickle'
         elif self.hr_lr_ratio == 4:
-            self.image_filename = '/304images.pickle'
+            self.image_filename = '/File_Ids.pickle'
 
         self.image_shape = [lr_imsize * self.hr_lr_ratio,
                             lr_imsize * self.hr_lr_ratio, 3]
@@ -222,11 +246,11 @@ class TextDataset(object):
     def get_data(self, pickle_path, aug_flag=True):
         with open(pickle_path + self.image_filename, 'rb') as f:
             imageIds = pickle.load(f)
-
         f=pickle_path + self.embedding_filename
-        embeddings=np.loadtxt(f,skiprows=2,usecols=range(1,1001))
+#        embeddings=np.loadtxt(f,skiprows=2,usecols=range(1,1001),dtype='int8')
 #            embeddings = pickle.load(f)
-        embeddings = np.array(embeddings)
+#        embeddings = np.array(embeddings)
+        embeddings = np.empty([289222,1000],dtype='int8')
         self.embedding_shape = [embeddings.shape[-1]]
         print('embeddings: ', embeddings.shape)
         with open(pickle_path + '/filenames.txt', 'rb') as f:
@@ -234,6 +258,7 @@ class TextDataset(object):
             print('list_filenames: ', len(list_filenames), list_filenames[0])
 #        with open(pickle_path + '/class_info.pickle', 'rb') as f:
 #            class_id = pickle.load(f)
+        print("Check...")
 
         return Dataset(imageIds, self.image_shape[0], embeddings,
                        list_filenames, self.workdir, None,

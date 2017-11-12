@@ -98,7 +98,7 @@ class CondGANTrainer(object):
                 z = tf.random_normal([self.batch_size, cfg.Z_DIM])
                 self.log_vars.append(("hist_c", c))
                 self.log_vars.append(("hist_z", z))
-                fake_images = self.model.get_generator(tf.concat(1, [c, z]))
+                fake_images = self.model.get_generator(tf.concat([c, z],1))
 
             # ####get discriminator_loss and generator_loss ###################
             discriminator_loss, generator_loss =\
@@ -128,7 +128,7 @@ class CondGANTrainer(object):
             z = tf.zeros([self.batch_size, cfg.Z_DIM])  # Expect similar BGs
         else:
             z = tf.random_normal([self.batch_size, cfg.Z_DIM])
-        self.fake_images = self.model.get_generator(tf.concat(1, [c, z]))
+        self.fake_images = self.model.get_generator(tf.concat([c, z],1))
 
     def compute_losses(self, images, wrong_images, fake_images, embeddings):
         real_logit = self.model.get_discriminator(images, embeddings)
