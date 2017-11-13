@@ -15,7 +15,7 @@ __C.DATASET_NAME = '../Category and Attribute Prediction Benchmark/Anno'
 __C.EMBEDDING_TYPE = 'cnn-rnn'
 __C.CONFIG_NAME = ''
 __C.GPU_ID = 0
-__C.Z_DIM = 100
+__C.Z_DIM = 32 #100
 __C.NUM_BATCH_IN_FILE=50
 
 # Demo/test options
@@ -41,7 +41,7 @@ __C.TRAIN.PRETRAINED_EPOCH = 600
 
 __C.TRAIN.DISCRIMINATOR_LR = 2e-4
 __C.TRAIN.GENERATOR_LR = 2e-4
-__C.TRAIN.LR_DECAY_EPOCH = 50
+__C.TRAIN.LR_DECAY_EPOCH = 10
 
 __C.TRAIN.NUM_EMBEDDING = 1000
 __C.TRAIN.COND_AUGMENTATION = True
@@ -55,9 +55,9 @@ __C.TRAIN.FT_LR_RETIO = 0.1
 
 # Modal options
 __C.GAN = edict()
-__C.GAN.EMBEDDING_DIM = 128
-__C.GAN.DF_DIM = 8
-__C.GAN.GF_DIM = 16
+__C.GAN.EMBEDDING_DIM = 32 #128
+__C.GAN.DF_DIM = 16
+__C.GAN.GF_DIM = 32
 __C.GAN.NETWORK_TYPE = "simple"
 
 

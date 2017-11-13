@@ -4,6 +4,7 @@ from __future__ import print_function
 import numpy as np
 import pickle
 import random
+from PIL import Image
 from misc.config import cfg
 
 
@@ -89,7 +90,11 @@ class Dataset(object):
                     transformed_images[i] = cropped_image
             return transformed_images
         else:
-            return images
+            transformed_images =\
+                np.zeros([images.shape[0], self._imsize, self._imsize, 3])
+            for i in range(images.shape[0]):
+                transformed_images[i]=np.asarray(Image.fromarray(images[i]).resize((self._imsize,self._imsize)))
+            return transformed_images
 
     def sample_embeddings(self, embeddings, filenames, class_id, sample_num):
         if len(embeddings.shape) == 2 or embeddings.shape[1] == 1:
@@ -158,13 +163,17 @@ class Dataset(object):
         
         sampled_images = self._images[current_ids]
         sampled_wrong_images = self._fake_images[fake_ids]
+
+        sampled_images = self.transform(sampled_images)
+        sampled_wrong_images = self.transform(sampled_wrong_images)
+
         sampled_images = sampled_images.astype(np.float32)
         sampled_wrong_images = sampled_wrong_images.astype(np.float32)
         sampled_images = sampled_images * (2. / 255) - 1.
         sampled_wrong_images = sampled_wrong_images * (2. / 255) - 1.
 
-        sampled_images = self.transform(sampled_images)
-        sampled_wrong_images = self.transform(sampled_wrong_images)
+        #sampled_images = self.transform(sampled_images)
+        #sampled_wrong_images = self.transform(sampled_wrong_images)
         ret_list = [sampled_images, sampled_wrong_images]
 
         
